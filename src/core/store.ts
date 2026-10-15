@@ -133,9 +133,9 @@ const HISTORY_LIMIT = 200;
 
 export const DEFAULT_TOOL_OPTIONS: ToolOptions = {
   brush: { ...DEFAULT_BRUSH },
-  brushColor: '#111111',
+  brushColor: '#6D5DFC',
   brushOpacity: 1,
-  paintColor: '#111111',
+  paintColor: '#6D5DFC',
   paintSize: 16,
   paintHardness: 0.8,
   paintOpacity: 1,

@@ -48,10 +48,15 @@ export function zoomToRect(r: Rect | null, opts: { padding?: number; maxZoom?: n
     return;
   }
   const pad = opts.padding ?? 64;
+  // keep clear of the floating toolbar at the bottom
+  const padTop = pad;
+  const padBottom = pad + 56;
   const w = Math.max(1, r.width);
   const h = Math.max(1, r.height);
-  const z = clampZoom(Math.min((canvasSize.width - pad * 2) / w, (canvasSize.height - pad * 2) / h, opts.maxZoom ?? 1));
-  const target = { zoom: z, x: canvasSize.width / 2 - (r.x + w / 2) * z, y: canvasSize.height / 2 - (r.y + h / 2) * z };
+  const availH = Math.max(40, canvasSize.height - padTop - padBottom);
+  const z = clampZoom(Math.min((canvasSize.width - pad * 2) / w, availH / h, opts.maxZoom ?? 1));
+  const cy = padTop + availH / 2;
+  const target = { zoom: z, x: canvasSize.width / 2 - (r.x + w / 2) * z, y: cy - (r.y + h / 2) * z };
   if (opts.animate === false) editor().setViewport(target);
   else animateViewport(target);
 }

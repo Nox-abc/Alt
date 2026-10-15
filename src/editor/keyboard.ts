@@ -4,6 +4,7 @@ import { getTool } from './tools';
 import { CURSORS, isTyping, requestOverlay, setCursor, ui } from './toolkit';
 import { useUI } from '../ui/uiStore';
 import { useDialog } from '../ui/dialog';
+import { native } from '../platform/native';
 
 /** Shortcuts that still work while typing in an input. */
 const GLOBAL_WHILE_TYPING = new Set(['Mod+S', 'Mod+Shift+S', 'Mod+O', 'Mod+N', 'Mod+K', 'Mod+,', 'Mod+Shift+E', 'Mod+\\']);
@@ -11,6 +12,20 @@ const GLOBAL_WHILE_TYPING = new Set(['Mod+S', 'Mod+Shift+S', 'Mod+O', 'Mod+N', '
 function modalOpen() {
   const u = useUI.getState();
   return u.palette || !!u.settings || u.exportOpen || u.present || !!useDialog.getState().current;
+}
+
+/**
+ * Desktop menus display (but don't own) undo / redo / select-all, so text
+ * fields need them driven explicitly. Returns true when handled.
+ */
+export function handleTextFieldKeys(e: KeyboardEvent | React.KeyboardEvent): boolean {
+  if (!native) return false;
+  const combo = eventCombo((('nativeEvent' in e ? e.nativeEvent : e) as KeyboardEvent));
+  const cmd = combo === 'Mod+Z' ? 'undo' : combo === 'Mod+Shift+Z' || combo === 'Mod+Y' ? 'redo' : combo === 'Mod+A' ? 'selectAll' : null;
+  if (!cmd) return false;
+  e.preventDefault();
+  document.execCommand(cmd);
+  return true;
 }
 
 export function installKeyboard() {
@@ -29,6 +44,8 @@ export function installKeyboard() {
       return;
     }
     if (isTyping(e)) {
+      // the native menu shows these accelerators but doesn't own them – drive text editing ourselves
+      if (handleTextFieldKeys(e)) return;
       if (GLOBAL_WHILE_TYPING.has(combo)) {
         const id = actionForEvent(e);
         if (id) {

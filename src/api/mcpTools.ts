@@ -602,8 +602,8 @@ export const MCP_TOOLS: McpToolDef[] = [
       'Run JavaScript inside Alt for things the other tools cannot express: procedural / generative art, bulk edits, data-driven layouts. ' +
       'The code is the body of an async function — use await, `return` a JSON-serialisable value; console.log output is captured.\n' +
       'API (global `alt`): alt.doc (current document, read-only), alt.page, alt.pageId, alt.selection (ids), alt.getNode(id), alt.children(id), ' +
-      'alt.find({name?, type?, text?}) → nodes, alt.create(specOrSpecs, parentId?) → created tree (same spec format as create_nodes), alt.update(idOrIds, props), ' +
-      'alt.remove(ids), alt.select(ids), alt.setPage(id), alt.call(toolName, args) → any other MCP tool, ' +
+      'alt.find({name?, type?, text?}) → nodes (current page), await alt.create(specOrSpecs, parentId?) → created tree (same spec format as create_nodes), await alt.update(idOrIds, props), ' +
+      'alt.remove(ids), alt.select(ids), alt.setPage(id), await alt.call(toolName, args) → result of any other MCP tool (parsed JSON), ' +
       'alt.mutate(draft => …) for low-level edits on the immer draft of the Doc (one undo step; alt.ops.* functions such as setProps, insertNode, moveNodes, groupNodes, alignNodes take the draft as first argument), ' +
       'alt.util (createNode, solid, gradient, uid, parseColor, worldBounds). Enabled only when "Allow scripts" is on in Alt Settings → MCP.',
     inputSchema: {

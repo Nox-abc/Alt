@@ -13,6 +13,10 @@ import { svgExporter } from './svg';
 import { pdfExporter } from './pdf';
 import { htmlExporter } from './html';
 import { reactExporter, tailwindExporter } from './react';
+import { composeExporter, flutterExporter, swiftUIExporter } from './native';
+import { luauExporter, rbxmxExporter } from './roblox';
+import { godotExporter } from './godot';
+import { cssVariablesExporter, jsonExporter, tokensExporter, unityExporter, vectorDrawableExporter } from './data';
 
 export const EXPORTERS: Exporter[] = [
   // Image
@@ -26,6 +30,20 @@ export const EXPORTERS: Exporter[] = [
   htmlExporter,
   reactExporter,
   tailwindExporter,
+  // Native
+  swiftUIExporter,
+  flutterExporter,
+  composeExporter,
+  vectorDrawableExporter,
+  // Game engines
+  rbxmxExporter,
+  luauExporter,
+  godotExporter,
+  unityExporter,
+  // Data
+  jsonExporter,
+  tokensExporter,
+  cssVariablesExporter,
 ];
 
 export function getExporter(id: string): Exporter | undefined {

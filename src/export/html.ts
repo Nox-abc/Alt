@@ -238,9 +238,8 @@ export class WebBuilder {
     const sizing = (axis: 'h' | 'v') => (axis === 'h' ? n.sizingH : n.sizingV);
     const dim = (axis: 'h' | 'v') => (axis === 'h' ? 'width' : 'height');
     const val = (axis: 'h' | 'v') => px(axis === 'h' ? n.width : n.height);
-    if (n.type === 'frame' || n.type === 'group') {
-      if (n.type === 'group' || !n.layout || n.children.length) d.push(['position', 'relative']);
-    }
+    // containers anchor their absolutely positioned children
+    if ((n.type === 'frame' || n.type === 'group') && n.children.length) d.push(['position', 'relative']);
     if (sizing(mainAxis) === 'fill' && !L.wrap) d.push(['flex', '1 1 0'], [`min-${dim(mainAxis)}`, '0']);
     else if (!this.hugs(n, mainAxis)) d.push([dim(mainAxis), val(mainAxis)], ['flex-shrink', '0']);
     if (sizing(crossAxis) === 'fill' || L.align === 'stretch') {

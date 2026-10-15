@@ -6,6 +6,7 @@ import { deleteNodes, setProps } from '../core/ops';
 import { layoutText, cssFontFamily } from '../core/text';
 import { hexToRgba } from '../core/doc';
 import { useSettings } from './settings';
+import { handleTextFieldKeys } from './keyboard';
 
 /**
  * Inline text editing: a transparent-background textarea laid exactly over the
@@ -27,7 +28,12 @@ export function TextEditor({ id, isNew }: { id: string; isNew: boolean }) {
       if (!isNew) el.select();
       else el.setSelectionRange(el.value.length, el.value.length);
     }
-    return () => finish();
+    return () => {
+      // React StrictMode re-runs effects; only finish when editing really moved on
+      const e = editor().editing;
+      if (e?.kind === 'text' && e.id === id) return;
+      finish();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -49,7 +55,14 @@ export function TextEditor({ id, isNew }: { id: string; isNew: boolean }) {
         s.commit();
       }
       s.setSelection([]);
-    } else s.commit();
+    } else {
+      // name new / default-named text layers after their content
+      if (n && (n.name === 'Text' || n.meta?.autoName)) {
+        const label = n.text.split('\n')[0].trim().slice(0, 48) || 'Text';
+        if (label !== n.name) s.mutate((d) => void Object.assign(d.nodes[id], { name: label, meta: { ...(d.nodes[id].meta ?? {}), autoName: true } }), { history: false });
+      }
+      s.commit();
+    }
     if (editor().editing?.kind === 'text') editor().setEditing(null);
   }
 
@@ -78,6 +91,7 @@ export function TextEditor({ id, isNew }: { id: string; isNew: boolean }) {
         onBlur={() => finish()}
         onKeyDown={(e) => {
           e.stopPropagation();
+          if (handleTextFieldKeys(e)) return;
           if (e.key === 'Escape' || (e.key === 'Enter' && (e.metaKey || e.ctrlKey))) {
             e.preventDefault();
             finish();

@@ -1,0 +1,159 @@
+# Alt — desktop packaging (electron-builder 26)
+#
+# Architectures are chosen on the command line (see package.json `dist:*`
+# scripts and .github/workflows/release.yml). Targets below deliberately do
+# NOT pin `arch`: a target-level arch list would override the CLI flags and
+# make every runner build every architecture.
+#
+#   macOS    dmg + zip           x64, arm64
+#   Windows  nsis + zip          x64, ia32, arm64   (one installer per arch)
+#   Linux    AppImage, deb, rpm, tar.gz   x64, arm64, armv7l
+
+appId: app.alt.design
+productName: Alt
+copyright: Copyright © 2026 Alt contributors
+artifactName: ${productName}-${version}-${os}-${arch}.${ext}
+
+directories:
+  output: release
+  buildResources: build
+
+files:
+  - dist/**/*
+  - dist-electron/**/*
+  - package.json
+  - "!**/*.map"
+  - "!**/.DS_Store"
+
+# The stdio MCP bridge must live outside app.asar so external node / the Alt
+# binary (ELECTRON_RUN_AS_NODE=1) can execute it. Alt copies it to
+# <userData>/mcp/alt-mcp.mjs on start so the path stays stable across updates.
+extraResources:
+  - from: mcp
+    to: mcp
+    filter:
+      - "**/*"
+
+# Linux window ↔ .desktop association: Electron derives WM_CLASS / Wayland app_id from
+# package.json `desktopName`; injected here so the source package.json stays untouched.
+extraMetadata:
+  desktopName: alt.desktop
+
+asar: true
+compression: normal
+# everything the app needs is bundled by Vite / esbuild; no runtime node_modules
+npmRebuild: false
+nodeGypRebuild: false
+buildDependenciesFromSource: false
+
+fileAssociations:
+  - ext: alt
+    name: Alt Design
+    description: Alt design document
+    mimeType: application/x-alt-design
+    role: Editor
+    rank: Owner
+
+
+publish: null
+
+# ------------------------------------------------------------------ macOS
+mac:
+  target:
+    - dmg
+    - zip
+  category: public.app-category.graphics-design
+  icon: build/icon.png
+  darkModeSupport: true
+  # Ad-hoc signature ("-"): no Apple certificate needed, and the bundle carries a
+  # valid signature so Apple Silicon will launch it (an unsigned / broken
+  # signature is reported as "damaged"). Users still confirm the first launch
+  # (right-click → Open, or System Settings → Privacy & Security → Open Anyway).
+  # To ship notarized builds, replace with a Developer ID identity + notarize.
+  identity: "-"
+  # hardened runtime + ad-hoc signing breaks library validation for Electron's frameworks
+  hardenedRuntime: false
+  gatekeeperAssess: false
+  minimumSystemVersion: "12.0"
+  extendInfo:
+    NSHighResolutionCapable: true
+    LSApplicationCategoryType: public.app-category.graphics-design
+    CFBundleDisplayName: Alt
+
+dmg:
+  title: ${productName} ${version}
+  artifactName: ${productName}-${version}-mac-${arch}.${ext}
+  window:
+    width: 560
+    height: 380
+  contents:
+    - x: 150
+      y: 190
+    - x: 410
+      y: 190
+      type: link
+      path: /Applications
+
+# ---------------------------------------------------------------- Windows
+win:
+  target:
+    - nsis
+    - zip
+  icon: build/icon.png
+  # no certificate in CI: skip Authenticode signing but still stamp version info / icon
+  signAndEditExecutable: true
+  verifyUpdateCodeSignature: false
+  legalTrademarks: Alt contributors
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+  selectPerMachineByDefault: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Alt
+  menuCategory: false
+  deleteAppDataOnUninstall: false
+  runAfterFinish: true
+  artifactName: ${productName}-${version}-win-${arch}-setup.${ext}
+  uninstallDisplayName: ${productName}
+
+# ------------------------------------------------------------------ Linux
+linux:
+  target:
+    - AppImage
+    - deb
+    - rpm
+    - tar.gz
+  icon: build/icons
+  category: Graphics
+  executableName: alt
+  syncDesktopName: true
+  synopsis: Free, open-source design studio with built-in MCP for AI agents
+  description: >-
+    Alt is a free, open-source design studio for every kind of 2D art: a
+    Figma-style vector editor with raster and vector tools, auto layout, and
+    exports to HTML, React, SwiftUI, Flutter, Roblox, Godot and more. AI agents
+    can read and edit designs through its built-in MCP server.
+  maintainer: Alt contributors <yanismouhouche@gmail.com>
+  vendor: Alt contributors
+  desktop:
+    entry:
+      Name: Alt
+      GenericName: Design Studio
+      Keywords: design;vector;illustration;figma;svg;ui;mcp;
+
+appImage:
+  artifactName: ${productName}-${version}-linux-${arch}.${ext}
+
+deb:
+  artifactName: ${productName}-${version}-linux-${arch}.${ext}
+  priority: optional
+  packageCategory: graphics
+
+rpm:
+  artifactName: ${productName}-${version}-linux-${arch}.${ext}
+
+# tar.gz uses the top-level artifactName (Alt-<version>-linux-<arch>.tar.gz)

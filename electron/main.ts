@@ -473,10 +473,11 @@ function resetRendererState() {
   listening.mcp = false;
 }
 
-function devIcon(): string | undefined {
+/** Window icon for Linux (macOS / Windows use the bundle / exe icon). */
+function linuxIcon(): string | undefined {
   if (process.platform !== 'linux') return undefined;
-  const p = path.join(app.getAppPath(), 'build', 'icon.png');
-  return fs.existsSync(p) ? p : undefined;
+  for (const p of [path.join(RENDERER_DIR, 'icon-512.png'), path.join(app.getAppPath(), 'build', 'icon.png')]) if (fs.existsSync(p)) return p;
+  return undefined;
 }
 
 function createWindow() {
@@ -492,7 +493,7 @@ function createWindow() {
     show: false,
     title: 'Alt',
     backgroundColor: chrome.background || BG_DARK,
-    icon: devIcon(),
+    ...(linuxIcon() ? { icon: linuxIcon() } : {}),
     titleBarStyle: IS_MAC ? 'hiddenInset' : 'hidden',
     ...(IS_MAC
       ? { trafficLightPosition: { x: 14, y: 13 } }

@@ -39,6 +39,33 @@ import { vectorEdit } from './vector';
 import { gradientEdit } from './gradient';
 import { frameLabelAt } from '../overlay';
 
+/* ------------------------------------------------------------ scale tool */
+
+/** Scale tool: scale visual properties together with geometry (stroke, type, radii, effects). */
+function scaleStyles(d: Doc, id: ID, k: number) {
+  const n = d.nodes[id] as any;
+  if (!n || k === 1) return;
+  n.strokeWidth *= k;
+  if (n.dash?.length) n.dash = n.dash.map((v: number) => v * k);
+  if (typeof n.cornerRadius === 'number') n.cornerRadius *= k;
+  if (n.cornerRadii) n.cornerRadii = n.cornerRadii.map((v: number) => v * k);
+  if (n.type === 'text') {
+    n.fontSize *= k;
+    n.letterSpacing *= k;
+    n.paragraphSpacing *= k;
+  }
+  if (n.type === 'brush') n.brush = { ...n.brush, size: n.brush.size * k };
+  if (n.type === 'frame' && n.layout) {
+    n.layout = { ...n.layout, gap: n.layout.gap * k, padding: n.layout.padding.map((v: number) => v * k) };
+  }
+  n.effects = n.effects.map((e: any) => {
+    const o = { ...e };
+    for (const key of ['x', 'y', 'blur', 'spread', 'radius', 'size']) if (typeof o[key] === 'number') o[key] *= k;
+    return o;
+  });
+  for (const c of n.children ?? []) scaleStyles(d, c, k);
+}
+
 /* ------------------------------------------------------------- targeting */
 
 /** Which node a click on `chain` should select (Figma-like rules). */
@@ -464,10 +491,12 @@ function updateResize(p: PointerInfo) {
           if (hx !== 0.5) n.sizingH = 'fixed';
           if (hy !== 0.5) n.sizingV = 'fixed';
         }
-        resizeContent(d, n, aw, ah);
-        if (n.type === 'text' && n.autoResize === 'height') {
-          // height follows content
+        if (editor().tool === 'scale') {
+          const k = Math.sqrt((aw / (w0 || 1)) * (ah / (h0 || 1)));
+          scaleStyles(d, id, k);
+          if (n.type === 'text') n.autoResize = 'none';
         }
+        resizeContent(d, n, aw, ah);
         if (flipX) n.flipX = !n.flipX;
         if (flipY) n.flipY = !n.flipY;
         n.x = pc.x - n.width / 2;
@@ -498,6 +527,10 @@ function updateResize(p: PointerInfo) {
         const ksx = Math.sqrt((sx * cos) ** 2 + (sy * sin) ** 2);
         const ksy = Math.sqrt((sx * sin) ** 2 + (sy * cos) ** 2);
         if (n.type === 'text' && n.autoResize === 'width') n.autoResize = 'height';
+        if (editor().tool === 'scale') {
+          scaleStyles(d, id, Math.sqrt(Math.abs(sx * sy)));
+          if (n.type === 'text') n.autoResize = 'none';
+        }
         resizeContent(d, n, Math.max(0.01, n.width * ksx), Math.max(0.01, n.height * ksy));
         if (sx < 0) n.flipX = !n.flipX;
         if (sy < 0) n.flipY = !n.flipY;

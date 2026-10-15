@@ -20,7 +20,7 @@ import {
   setProps,
   type AlignMode,
 } from '../core/ops';
-import { isMac } from '../platform/native';
+import { isMac, openExternal } from '../platform/native';
 import { useSettings } from './settings';
 import { useUI } from '../ui/uiStore';
 import { zoomStep, zoomToFit, zoomToSelection, setZoom } from './viewport';
@@ -263,6 +263,7 @@ export const ACTIONS: Action[] = [
   { id: 'file.open', label: 'Open…', group: 'File', keys: ['Mod+O'], run: () => void openDocument() },
   { id: 'file.save', label: 'Save', group: 'File', keys: ['Mod+S'], run: () => void saveDocument(false) },
   { id: 'file.saveAs', label: 'Save as…', group: 'File', keys: ['Mod+Shift+S'], run: () => void saveDocument(true) },
+  { id: 'file.close', label: 'Close file', group: 'File', keys: ['Mod+W'], run: () => void newDocument() },
   { id: 'file.import', label: 'Import image or SVG…', group: 'File', keys: ['Mod+Shift+K'], run: () => void importDialog() },
   { id: 'file.export', label: 'Export…', group: 'File', keys: ['Mod+Shift+E'], run: () => useUI.getState().set({ exportOpen: true }) },
   // Edit
@@ -280,7 +281,7 @@ export const ACTIONS: Action[] = [
   { id: 'edit.rename', label: 'Rename layer', group: 'Edit', keys: ['Mod+R'], run: () => void renameSelection(), enabled: hasSel },
   { id: 'edit.find', label: 'Find layers…', group: 'Edit', keys: ['Mod+F'], run: () => useUI.getState().set({ palette: true, paletteQuery: '#' }) },
   // View
-  { id: 'view.zoomIn', label: 'Zoom in', group: 'View', keys: ['Mod+=', '='], run: () => zoomStep(1) },
+  { id: 'view.zoomIn', label: 'Zoom in', group: 'View', keys: ['Mod+=', '=', 'Mod+Shift+=', 'Shift+='], run: () => zoomStep(1) },
   { id: 'view.zoomOut', label: 'Zoom out', group: 'View', keys: ['Mod+-', '-'], run: () => zoomStep(-1) },
   { id: 'view.zoom100', label: 'Zoom to 100%', group: 'View', keys: ['Shift+0', 'Mod+0'], run: () => setZoom(1) },
   { id: 'view.zoomFit', label: 'Zoom to fit', group: 'View', keys: ['Shift+1'], run: zoomToFit },
@@ -328,10 +329,10 @@ export const ACTIONS: Action[] = [
   { id: 'object.flipV', label: 'Flip vertical', group: 'Object', keys: ['Shift+V'], run: op('Flip', (ids) => (d) => flipNodes(d, ids, 'v')), enabled: hasSel },
   { id: 'object.rotateCw', label: 'Rotate 90° clockwise', group: 'Object', keys: ['Shift+]'], run: op('Rotate', (ids) => (d) => rotateNodes(d, ids, 90)), enabled: hasSel },
   { id: 'object.rotateCcw', label: 'Rotate 90° counter-clockwise', group: 'Object', keys: ['Shift+['], run: op('Rotate', (ids) => (d) => rotateNodes(d, ids, -90)), enabled: hasSel },
-  { id: 'object.bringFront', label: 'Bring to front', group: 'Arrange', keys: ['Mod+Shift+]', ']'], run: op('Arrange', (ids) => (d) => reorderNodes(d, ids, 'front')), enabled: hasSel },
+  { id: 'object.bringFront', label: 'Bring to front', group: 'Arrange', keys: ['Mod+Alt+]', 'Mod+Shift+]', ']'], run: op('Arrange', (ids) => (d) => reorderNodes(d, ids, 'front')), enabled: hasSel },
   { id: 'object.bringForward', label: 'Bring forward', group: 'Arrange', keys: ['Mod+]'], run: op('Arrange', (ids) => (d) => reorderNodes(d, ids, 'forward')), enabled: hasSel },
   { id: 'object.sendBackward', label: 'Send backward', group: 'Arrange', keys: ['Mod+['], run: op('Arrange', (ids) => (d) => reorderNodes(d, ids, 'backward')), enabled: hasSel },
-  { id: 'object.sendBack', label: 'Send to back', group: 'Arrange', keys: ['Mod+Shift+[', '['], run: op('Arrange', (ids) => (d) => reorderNodes(d, ids, 'back')), enabled: hasSel },
+  { id: 'object.sendBack', label: 'Send to back', group: 'Arrange', keys: ['Mod+Alt+[', 'Mod+Shift+[', '['], run: op('Arrange', (ids) => (d) => reorderNodes(d, ids, 'back')), enabled: hasSel },
   { id: 'object.lock', label: 'Lock / unlock', group: 'Object', keys: ['Mod+Shift+L'], run: () => toggleProp('locked'), enabled: hasSel },
   { id: 'object.hide', label: 'Show / hide', group: 'Object', keys: ['Mod+Shift+H'], run: () => toggleProp('visible'), enabled: hasSel },
   { id: 'object.repeat', label: 'Repeat in grid…', group: 'Object', run: repeatGrid, enabled: hasSel },
@@ -435,15 +436,8 @@ export function getAction(id: string) {
 export function runAction(id: string) {
   const a = byId.get(id);
   if (!a) {
-    // native menu ids that map onto palette actions
-    const alias: Record<string, string> = {
-      'object.bringFront': 'object.bringFront',
-      'app.commandPalette': 'app.commandPalette',
-      'help.docs': 'help.docs',
-    };
-    const t = alias[id];
-    if (t && byId.get(t)) byId.get(t)!.run();
-    else if (id === 'help.docs') window.open('https://github.com/nox-abc/alt#readme', '_blank');
+    // native-menu-only actions
+    if (id === 'help.docs') openExternal('https://github.com/nox-abc/alt#readme');
     else if (id === 'file.close') void newDocument();
     return;
   }

@@ -203,6 +203,8 @@ function drawBitmapGrids(ctx: CanvasRenderingContext2D) {
       if (!n || !n.visible) continue;
       if (isContainer(n)) visit(n.children);
       if (n.type !== 'bitmap' || !n.pixelGrid) continue;
+      const active = s.selection.includes(n.id) || s.hoverId === n.id || s.tool === 'pixel';
+      if (!active) continue;
       const cw = n.width / n.pixelWidth;
       const ch = n.height / n.pixelHeight;
       if (cw * v.zoom < 6 || n.pixelWidth > 512 || n.pixelHeight > 512) continue;

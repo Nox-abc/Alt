@@ -92,6 +92,7 @@ export function Canvas() {
       unsubs.forEach((u) => u());
       document.fonts?.removeEventListener?.('loadingdone', onFonts);
       cancelAnimationFrame(d.raf);
+      d.raf = 0;
     };
   }, []);
 
@@ -143,8 +144,9 @@ export function Canvas() {
   // external zoom requests (MCP, menus)
   useEffect(() => {
     const onZoom = (e: Event) => {
-      const ids = (e as CustomEvent).detail?.ids as string[] | 'fit' | undefined;
-      if (!ids || ids === 'fit' || !ids.length) zoomToFit();
+      const detail = (e as CustomEvent).detail ?? {};
+      const ids = detail.ids as string[] | 'fit' | undefined;
+      if (detail.fit || !ids || ids === 'fit' || !ids.length) zoomToFit();
       else zoomToSelection(ids);
     };
     window.addEventListener('alt:zoom-to', onZoom);
@@ -155,7 +157,7 @@ export function Canvas() {
   const pan = useRef<{ x: number; y: number; vx: number; vy: number } | null>(null);
   const clicks = useRef({ t: 0, x: 0, y: 0, n: 0 });
 
-  function info(e: PointerEvent | MouseEvent | React.PointerEvent): PointerInfo {
+  function info(e: PointerEvent | MouseEvent | React.PointerEvent | React.MouseEvent): PointerInfo {
     const r = overlayRef.current!.getBoundingClientRect();
     const screen = { x: e.clientX - r.left, y: e.clientY - r.top };
     const pe = e as PointerEvent;

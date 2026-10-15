@@ -17,7 +17,7 @@ function ensure() {
   return ready;
 }
 
-function toItem(cmds: PathCmd[]): paper.PathItem {
+function toItem(cmds: PathCmd[]): any {
   return new paper.CompoundPath({ pathData: cmdsToSvgD(cmds, 4), insert: false, fillRule: 'nonzero' } as any);
 }
 
@@ -37,7 +37,7 @@ export function combineCmds(op: BooleanOp, shapes: PathCmd[][]): PathCmd[] {
     let acc = toItem(valid[0]);
     for (let i = 1; i < valid.length; i++) {
       const next = toItem(valid[i]);
-      const res = (acc as any)[OPS[op]](next, { insert: false }) as paper.PathItem;
+      const res = (acc as any)[OPS[op]](next, { insert: false }) as any;
       acc.remove();
       next.remove();
       acc = res;

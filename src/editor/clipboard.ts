@@ -2,7 +2,7 @@ import type { ID, Vec } from '../core/types';
 import { editor } from '../core/store';
 import { createNode, sortByZ, topLevelOnly } from '../core/doc';
 import { deleteNodes, fitText, frameAt, insertNode, pagePointToParent, pasteNodes, serializeNodes, type ClipboardData } from '../core/ops';
-import { apply, rectsIntersect } from '../core/geometry';
+import { apply, rectsIntersect, worldBounds } from '../core/geometry';
 import { isTyping } from './toolkit';
 import { importFileObjects, importSvgText } from './file';
 import { viewCenter, visibleWorldRect } from './viewport';
@@ -77,12 +77,21 @@ function pasteTarget(): ID {
 export function pasteData(data: ClipboardData, at?: Vec) {
   const s = editor();
   const parent = pasteTarget();
-  // paste in place when the originals are on screen, otherwise centre in the view
+  // paste in place when the originals are on screen (and inside the target frame), otherwise centre
   let inPlace = false;
+  const pts = data.roots.map((r) => apply(r.world, { x: 0, y: 0 }));
   if (!at) {
     const vis = visibleWorldRect();
-    const pts = data.roots.map((r) => apply(r.world, { x: 0, y: 0 }));
     inPlace = pts.length > 0 && pts.every((p) => rectsIntersect(vis, { x: p.x, y: p.y, width: 1, height: 1 }));
+  }
+  const parentNode = s.doc.nodes[parent];
+  if (parentNode && !at) {
+    const fb = worldBounds(s.doc, parent);
+    const inside = pts.every((p) => rectsIntersect(fb, { x: p.x, y: p.y, width: 1, height: 1 }));
+    if (!inside) {
+      inPlace = false;
+      at = { x: fb.x + fb.width / 2, y: fb.y + fb.height / 2 };
+    }
   }
   const ids = s.mutate((d) => pasteNodes(d, data, parent, { at: inPlace ? undefined : at ?? viewCenter() }), {
     select: (r) => r,
@@ -206,3 +215,32 @@ export function installClipboard() {
 }
 
 export { MIME };
+
+/** Paste via the async Clipboard API (context menus / native menus where no paste event fires). */
+export async function pasteFromSystem() {
+  try {
+    const items = await navigator.clipboard.read();
+    for (const item of items) {
+      if (item.types.includes('text/html')) {
+        const html = await (await item.getType('text/html')).text();
+        const m = HTML_MARK.exec(html);
+        if (m) {
+          const data = JSON.parse(unb64(m[1])) as ClipboardData;
+          if (data.app === 'alt') return void pasteData(data);
+        }
+      }
+      const img = item.types.find((t) => t.startsWith('image/'));
+      if (img) {
+        const blob = await item.getType(img);
+        return void (await importFileObjects([new File([blob], 'Pasted image.' + img.split('/')[1], { type: img })], viewCenter()));
+      }
+      if (item.types.includes('text/plain')) {
+        const text = await (await item.getType('text/plain')).text();
+        if (/^\s*(<\?xml[^>]*>\s*)?<svg[\s>]/i.test(text)) return void importSvgText(text, 'Pasted SVG');
+      }
+    }
+  } catch {
+    /* permission denied – fall back to the in-app clipboard */
+  }
+  if (internal) pasteData(internal);
+}

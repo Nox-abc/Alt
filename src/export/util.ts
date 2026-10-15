@@ -3,7 +3,7 @@
  * gradient maths, bounds, bytes / base64 and small XML / code writers.
  */
 import type { Doc, Effect, GradientPaint, GradientStop, ID, Paint, Rect, SceneNode, SolidPaint, Vec } from '../core/types';
-import { apply, invert, localMatrix, mul, transformRect, worldMatrix, IDENTITY, type Mat } from '../core/geometry';
+import { invert, localMatrix, mul, transformRect, worldMatrix, IDENTITY, type Mat } from '../core/geometry';
 import { getPage, hexToRgb, isContainer, sortByZ, topLevelOnly } from '../core/doc';
 
 /* ---------------------------------------------------------------- numbers */
@@ -196,7 +196,7 @@ export class NameRegistry {
   private used = new Set<string>();
   constructor(
     private style: IdentStyle,
-    private reserved: Iterable<string> = [],
+    reserved: Iterable<string> = [],
     private opts: { prefixDigits?: string; separator?: string; caseInsensitive?: boolean } = {},
   ) {
     for (const r of reserved) this.used.add(this.key(r));
@@ -676,14 +676,6 @@ export class CodeWriter {
 }
 
 /* ------------------------------------------------------------------ misc */
-
-/** Matrix of a node's local box for rendering at the export root (root drawn at its own origin). */
-export function rootPlacement(doc: Doc, rootId: ID): Mat {
-  return worldMatrix(doc, rootId);
-}
-
-/** Apply a matrix to a point (re-export for exporters). */
-export const applyMat = apply;
 
 /** Common text MIME types. */
 export const MIME = {

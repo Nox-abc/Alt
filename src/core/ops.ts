@@ -143,7 +143,10 @@ export function setProps(d: Doc, id: ID, props: Partial<SceneNode>) {
     if (n.type === 'text' && width !== undefined && n.autoResize === 'width') n.autoResize = 'height';
     if (n.type === 'text' && height !== undefined) n.autoResize = 'none';
     resizeContent(d, n, w, h);
-    if (n.type === 'frame') n.sizingH = width !== undefined && n.sizingH === 'hug' ? 'fixed' : n.sizingH;
+    if (n.type === 'frame') {
+      if (width !== undefined && n.sizingH === 'hug') n.sizingH = 'fixed';
+      if (height !== undefined && n.sizingV === 'hug') n.sizingV = 'fixed';
+    }
   }
   if (n.type === 'text') {
     if (rest.sizingH === 'hug') n.autoResize = 'width';

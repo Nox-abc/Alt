@@ -34,7 +34,7 @@
   --bg-panel: #141417;
   --bg-panel-2: #18181c;
   --bg-elev: #1d1d22;
-  --bg-popover: rgba(30, 30, 36, 0.92);
+  --bg-popover: rgba(28, 28, 33, 0.97);
   --bg-input: #1f1f25;
   --bg-input-hover: #25252c;
   --bg-hover: rgba(255, 255, 255, 0.055);
@@ -65,7 +65,7 @@
   --bg-panel: #ffffff;
   --bg-panel-2: #fafafb;
   --bg-elev: #ffffff;
-  --bg-popover: rgba(255, 255, 255, 0.94);
+  --bg-popover: rgba(255, 255, 255, 0.97);
   --bg-input: #f2f2f5;
   --bg-input-hover: #ebebef;
   --bg-hover: rgba(0, 0, 0, 0.045);
@@ -1556,7 +1556,7 @@ input[type='range'].slider:hover::-webkit-slider-thumb {
 /* ========================================================= color picker */
 
 .picker {
-  width: 252px;
+  width: 268px;
   padding: 0;
   overflow: hidden;
 }
@@ -1571,8 +1571,11 @@ input[type='range'].slider:hover::-webkit-slider-thumb {
   gap: 2px;
   flex-wrap: wrap;
 }
+.picker-types {
+  flex-wrap: nowrap;
+}
 .picker-types .icon-btn {
-  width: 26px;
+  width: 25px;
   height: 26px;
 }
 .picker-body {
@@ -1895,4 +1898,70 @@ input[type='range'].slider:hover::-webkit-slider-thumb {
 :root[data-reduce-motion='true'] *::after {
   animation-duration: 0ms !important;
   transition-duration: 0ms !important;
+}
+
+/* gradient type glyphs in the paint picker (monochrome) */
+.tab-grad {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1.5px currentColor;
+}
+.tab-grad.lin {
+  background: linear-gradient(180deg, currentColor, transparent);
+}
+.tab-grad.rad {
+  border-radius: 50%;
+  background: radial-gradient(circle, currentColor, transparent 70%);
+}
+.tab-grad.ang {
+  border-radius: 50%;
+  background: conic-gradient(currentColor, transparent);
+}
+.tab-grad.dia {
+  transform: rotate(45deg) scale(0.82);
+  background: radial-gradient(currentColor, transparent 75%);
+}
+
+.paint-row .pct .field {
+  height: 24px;
+  background: transparent;
+  box-shadow: none;
+}
+.paint-row .pct .field input {
+  padding: 0;
+}
+.paint-row .pct .field .suffix {
+  padding-right: 2px;
+}
+
+.section .btn + .btn {
+  margin-left: 0;
+}
+
+/* focus: only show rings for keyboard navigation */
+button:focus {
+  outline: none;
+}
+button:focus-visible,
+.select:focus-visible,
+[role='switch']:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--bg-panel), 0 0 0 4px rgba(var(--accent-rgb), 0.7);
+}
+
+.agent-badge .dot {
+  animation: pulse 1.1s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.7);
+  }
 }
