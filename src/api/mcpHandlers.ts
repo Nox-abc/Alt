@@ -1810,13 +1810,7 @@ function buildScriptApi(log: (level: string, args: unknown[]) => void) {
   };
 }
 
-const runScript: Handler = async (a) => {
-  if (native) {
-    const status = await native.mcp.getStatus().catch(() => null);
-    if (status && !status.allowScripts) throw new ToolError('run_script is disabled. Ask the user to enable "Allow scripts" in Alt → Settings → MCP.');
-  }
-  if (typeof a.code !== 'string' || !a.code.trim()) throw new ToolError('"code" must be a non-empty string');
-  const timeoutMs = has(a, 'timeoutMs') ? clamp(Math.round(num(a.timeoutMs, 'timeoutMs')), 100, 110_000) : 30_000;
+async function execScript(code: string, timeoutMs: number): Promise<McpToolResult> {
   const logs: string[] = [];
   const log = (level: string, args: unknown[]) => {
     if (logs.length >= 500) return;
@@ -1834,7 +1828,7 @@ const runScript: Handler = async (a) => {
   }).constructor as new (...args: string[]) => (...a: unknown[]) => Promise<unknown>;
   let fn: (...a: unknown[]) => Promise<unknown>;
   try {
-    fn = new AsyncFunction('alt', 'console', a.code);
+    fn = new AsyncFunction('alt', 'console', code);
   } catch (e) {
     throw new ToolError(`Script syntax error: ${(e as Error).message}`);
   }
@@ -1854,7 +1848,31 @@ const runScript: Handler = async (a) => {
   } finally {
     clearTimeout(timer);
   }
+}
+
+const runScript: Handler = async (a) => {
+  if (native) {
+    const status = await native.mcp.getStatus().catch(() => null);
+    if (status && !status.allowScripts) throw new ToolError('run_script is disabled. Ask the user to enable "Allow scripts" in Alt → Settings → MCP.');
+  }
+  if (typeof a.code !== 'string' || !a.code.trim()) throw new ToolError('"code" must be a non-empty string');
+  const timeoutMs = has(a, 'timeoutMs') ? clamp(Math.round(num(a.timeoutMs, 'timeoutMs')), 100, 110_000) : 30_000;
+  return execScript(a.code, timeoutMs);
 };
+
+/**
+ * Run a script typed by the user in the in-app Script console. Not gated by
+ * the MCP "Allow scripts" setting — that only protects against remote agents.
+ */
+export async function runLocalScript(code: string): Promise<{ ok: boolean; text: string }> {
+  try {
+    const r = await execScript(code, 60_000);
+    const text = r.content.filter((c): c is { type: 'text'; text: string } => c.type === 'text').map((c) => c.text).join('\n');
+    return { ok: !r.isError, text };
+  } catch (e) {
+    return { ok: false, text: (e as Error).message };
+  }
+}
 
 /* ============================================================ dispatcher */
 

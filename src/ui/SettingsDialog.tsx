@@ -313,7 +313,7 @@ const TABS = [
 
 export function SettingsDialog() {
   const tab = useUI((s) => s.settings);
-  if (!tab) return null;
+  if (!tab || tab === 'scripts') return null;
   const close = () => useUI.getState().set({ settings: null });
   return (
     <div

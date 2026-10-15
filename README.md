@@ -24,7 +24,7 @@ macOS · Windows · Linux — x64, ARM64 (Apple Silicon, Windows on ARM, Raspber
 | **More than UI** | Pressure-sensitive vector brushes, raster painting, spray, eraser, flood fill, a pixel-art pencil with symmetry, pattern & noise fills, glows, grain, adjustments and background blur. |
 | **Agent-ready** | A Model Context Protocol server ships inside the app. Claude Code, Claude Desktop, Cursor, VS Code and any MCP client can read and edit your design, take screenshots and export code — every change is undoable. |
 | **Exports everywhere** | PNG/JPG/WebP, SVG, PDF, HTML & CSS, React (+Tailwind), SwiftUI, Flutter, Jetpack Compose, Android VectorDrawable, **Roblox Studio `.rbxmx` + Luau**, Godot `.tscn`, Unity UI Toolkit, JSON, design tokens and CSS variables. |
-| **Yours** | MIT-licensed, offline, no account. Documents are plain JSON (`.alt`). Themes, accent colour, UI scale, toolbar position and every keyboard shortcut are customisable. |
+| **Yours** | MIT-licensed, offline, no account. Documents are plain JSON (`.alt`). Themes, accent colour, UI scale, toolbar position and every keyboard shortcut are customisable — and a script console lets you automate the rest. |
 
 ## Features
 
@@ -37,7 +37,7 @@ macOS · Windows · Linux — x64, ARM64 (Apple Silicon, Windows on ARM, Raspber
 - **Live boolean groups** — union, subtract, intersect, exclude — plus flatten
 - Masks, groups, components, rich layer tree with drag & drop, lock/hide, rename
 - Text with auto width / auto height / fixed boxes, weights, italics, line height, letter & paragraph spacing, alignment, decoration, case, text styles and local font discovery
-- Smart guides & snapping (objects, pixel grid, grid, guides), rulers with draggable guides, Alt-hover measurements
+- Smart guides & snapping (objects, pixel grid, grid, guides), rulers (drag out guides), Alt-hover measurements
 - Align, distribute, tidy up, repeat in a grid, **radial repeat**, flip, rotate, scale tool (scales strokes, type, radii and effects with the geometry)
 
 ### Paint & draw (beyond Figma)
@@ -59,8 +59,16 @@ macOS · Windows · Linux — x64, ARM64 (Apple Silicon, Windows on ARM, Raspber
 - Command palette (`⌘K` / `Ctrl+K`) for every action, tool, template and layer
 - Infinite undo / redo, copy / paste between documents (and as SVG or PNG), drag & drop of images and SVGs, SVG paste & import
 - Live **Code** inspector — see HTML, React, SwiftUI, Flutter, Roblox Luau… for the selection as you design
+- **Script console** (`⌥⌘J` / `Ctrl+Alt+J`) — automate anything with JavaScript against the same document API agents use, and save scripts as your own mini-plugins
 - Present mode for frames, outline (wireframe) mode, crash recovery, recent files
 - Dark & light themes, 8 accent colours (or any colour), UI scaling, remappable shortcuts
+
+<details>
+<summary>Light theme</summary>
+
+![Alt — light theme](docs/screenshots/hero-light.png)
+
+</details>
 
 ## Download
 
@@ -68,7 +76,7 @@ Grab the latest build from [Releases](https://github.com/nox-abc/alt/releases).
 
 | Platform | Architectures | Formats |
 |---|---|---|
-| macOS 11+ | Apple Silicon (arm64), Intel (x64) | `.dmg`, `.zip` |
+| macOS 12+ | Apple Silicon (arm64), Intel (x64) | `.dmg`, `.zip` |
 | Windows 10/11 | x64, arm64, ia32 | installer `.exe`, `.zip` |
 | Linux | x64, arm64, armv7l | `AppImage`, `.deb`, `.rpm`, `.tar.gz` |
 

@@ -18,6 +18,7 @@ import { LeftPanel, RightPanel } from './ui/Panels';
 import { Toolbar } from './ui/Toolbar';
 import { Rulers } from './ui/Rulers';
 import { useUI } from './ui/uiStore';
+import { ScriptConsole } from './ui/ScriptConsole';
 import { toast } from './ui/toast';
 
 function useTheme() {
@@ -162,6 +163,7 @@ export function App() {
       <CommandPalette />
       <SettingsDialog />
       <ExportDialog />
+      <ScriptConsole />
       <DialogHost />
       <Presenter />
       <Toasts />

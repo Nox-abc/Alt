@@ -399,6 +399,7 @@ export const ACTIONS: Action[] = [
   { id: 'app.commandPalette', label: 'Command palette', group: 'App', keys: ['Mod+K', 'Mod+/'], run: () => useUI.getState().set({ palette: true, paletteQuery: '' }) },
   { id: 'app.settings', label: 'Settings', group: 'App', keys: ['Mod+,'], run: () => useUI.getState().set({ settings: 'appearance' }) },
   { id: 'app.shortcuts', label: 'Keyboard shortcuts', group: 'App', keys: ['Mod+Shift+/'], run: () => useUI.getState().set({ settings: 'shortcuts' }) },
+  { id: 'app.scripts', label: 'Script console…', group: 'App', keys: ['Mod+Alt+J'], run: () => useUI.getState().set({ settings: 'scripts' }) },
   { id: 'help.mcp', label: 'Connect AI agents (MCP)', group: 'App', run: () => useUI.getState().set({ settings: 'mcp' }) },
   // nudges & opacity (hidden from the palette)
   ...[

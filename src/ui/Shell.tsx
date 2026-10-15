@@ -111,6 +111,7 @@ function appMenu(): MenuItem[] {
     { separator: true },
     { label: 'Command palette…', action: 'app.commandPalette' },
     { label: 'Keyboard shortcuts', action: 'app.shortcuts' },
+    { label: 'Script console…', action: 'app.scripts' },
     { label: 'Connect AI agents (MCP)…', action: 'help.mcp' },
     { label: 'Settings…', action: 'app.settings' },
   ];
