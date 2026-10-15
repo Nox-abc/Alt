@@ -1,0 +1,59 @@
+{
+  "name": "alt-design",
+  "productName": "Alt",
+  "version": "0.1.0",
+  "description": "Alt — a free, open-source design studio for every kind of 2D art. Figma-style UI, raster + vector tools, MCP built-in, and exports to HTML, React, Roblox Studio, SwiftUI, Flutter, Godot and more.",
+  "author": {
+    "name": "Alt contributors",
+    "email": "yanismouhouche@gmail.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/nox-abc/alt",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nox-abc/alt.git"
+  },
+  "private": true,
+  "type": "module",
+  "main": "dist-electron/main.cjs",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:web": "vite",
+    "build": "npm run build:web && npm run build:electron",
+    "build:web": "vite build",
+    "build:electron": "node scripts/build-electron.mjs",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "start": "electron .",
+    "dist": "npm run build && electron-builder",
+    "dist:mac": "npm run build && electron-builder --mac --x64 --arm64",
+    "dist:win": "npm run build && electron-builder --win --x64 --ia32 --arm64",
+    "dist:linux": "npm run build && electron-builder --linux --x64 --arm64 --armv7l",
+    "dist:dir": "npm run build && electron-builder --dir"
+  },
+  "devDependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^5.2.0",
+    "electron": "^44.7.2",
+    "electron-builder": "^26.15.3",
+    "esbuild": "^0.25.12",
+    "fflate": "^0.8.3",
+    "immer": "^10.2.0",
+    "jspdf": "^3.0.4",
+    "lucide-react": "^1.57.0",
+    "paper": "^0.12.18",
+    "perfect-freehand": "^1.2.3",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "svg2pdf.js": "^2.8.1",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.7",
+    "vitest": "^3.2.7",
+    "zustand": "^5.0.15"
+  }
+}
